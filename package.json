@@ -1,12 +1,12 @@
 {
-  "name": "heroku-ps-exec",
-  "version": "2.3.1",
-  "description": "Heroku Exec CLI",
+  "name": "heroku-cli-local",
+  "version": "0.1.0",
+  "description": "Heroku CLI Local",
   "main": "index.js",
   "author": "Joe Kutner",
-  "repository": "heroku/heroku-ps-exec",
+  "repository": "heroku/heroku-cli-local",
   "bugs": {
-    "url": "https://github.com/heroku/heroku-ps-exec/issues"
+    "url": "https://github.com/heroku/heroku-cli-local/issues"
   },
   "keywords": [
     "heroku",
