@@ -5,8 +5,7 @@ exports.topic = {
 };
 
 exports.commands = [
-  require('./commands/ssh.js')('ps', 'exec'),
-  require('./commands/socks.js')('ps', 'socks'),
-  require('./commands/port.js')('ps', 'forward'),
-  require('./commands/copy.js')('ps', 'copy')
+  require('./commands/ssh.js')('local', 'build'),
+  require('./commands/socks.js')('local', 'run'),
+  require('./commands/port.js')('local', 'export')
 ];

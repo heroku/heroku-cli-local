@@ -17,8 +17,5 @@
   "dependencies": {
     "heroku-cli-util": "^7.0.0",
     "heroku-exec-util": "0.7.0"
-  },
-  "scripts": {
-    "test": "bash bin/test"
   }
 }

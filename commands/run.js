@@ -1,24 +1,27 @@
 'use strict';
 
 const child = require('child_process');
-const path = require('path');
 const cli = require('heroku-cli-util');
 const exec = require('heroku-exec-util');
-const https = require('https')
-const http = require('http')
-const fs = require('fs');
 const co = require('co');
+const Client = require('ssh2').Client;
+const https = require('https')
 const url = require('url');
+const tty = require('tty');
+const path = require('path');
+const fs = require('fs');
+const stream = require('stream');
 
 module.exports = function(topic, command) {
   return {
     topic: topic,
     command: command,
-    description: 'Check the status of your heroku-exec add-on',
+    description: 'Run a locally built app',
     help: `Example:
 
-    $ heroku ps:status --app murmuring-headland-14719`,
-    args: [],
+    $ heroku local:run`,
+    args: [ {name: 'file'} ],
+    flags: [],
     needsApp: true,
     needsAuth: true,
     run: cli.command(co.wrap(run))
@@ -26,7 +29,6 @@ module.exports = function(topic, command) {
 };
 
 function * run(context, heroku) {
-  yield exec.initFeature(context, heroku, function *(configVars) {
-    yield exec.checkStatus(context, heroku, configVars);
-  });
+  // TODO
+  return new Promise(resolve => {})
 }
