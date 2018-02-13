@@ -2,9 +2,7 @@
 
 const child = require('child_process');
 const cli = require('heroku-cli-util');
-const exec = require('heroku-exec-util');
 const co = require('co');
-const Client = require('ssh2').Client;
 const https = require('https')
 const url = require('url');
 const tty = require('tty');
@@ -20,7 +18,6 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:build`,
-    args: [ {name: 'file'} ],
     flags: [
       { name: 'buildpack', char: 'b', hasValue: true, description: 'the buildpack to use' }],
     needsApp: true,
@@ -30,21 +27,13 @@ module.exports = function(topic, command) {
 };
 
 function * run(context, heroku) {
-  cli.log(`Building...`)
-  build(context, args)
-  return new Promise(resolve => {})
-}
-
-function build(context, args) {
   return new Promise((resolve, reject) => {
     cli.hush(`cf local stage ${context.app}`)
     let cmdArgs = ['local', 'stage', context.app]
     let spawned = child.spawn('cf', cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
-          reject(
-            `There was a problem building the app.
-            Make sure you have permission to deploy by running: ${cli.color.magenta('heroku apps:info -a ' + context.app)}`);
+          reject(`There was a problem building the app.`);
         } else {
           resolve();
         }

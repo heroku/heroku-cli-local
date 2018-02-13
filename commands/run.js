@@ -2,9 +2,7 @@
 
 const child = require('child_process');
 const cli = require('heroku-cli-util');
-const exec = require('heroku-exec-util');
 const co = require('co');
-const Client = require('ssh2').Client;
 const https = require('https')
 const url = require('url');
 const tty = require('tty');
@@ -20,15 +18,30 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:run`,
-    args: [ {name: 'file'} ],
     flags: [],
     needsApp: true,
-    needsAuth: true,
+    needsAuth: false,
     run: cli.command(co.wrap(run))
   }
 };
 
 function * run(context, heroku) {
-  // TODO
-  return new Promise(resolve => {})
+  return new Promise((resolve, reject) => {
+    cli.hush(`cf local run ${context.app}`)
+    let cmdArgs = ['local', 'run', context.app]
+    let spawned = child.spawn('cf', cmdArgs, {stdio: 'pipe'})
+      .on('exit', (code, signal) => {
+        if (signal || code) {
+          reject(`There was a problem building the app.`);
+        } else {
+          resolve();
+        }
+      });
+    spawned.stdout.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
+    spawned.stderr.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
+  });
 }

@@ -1,11 +1,11 @@
 'use strict';
 exports.topic = {
-  name: 'ps',
-  description: 'Client tools for Heroku Exec'
+  name: 'local',
+  description: 'Build and run a Heroku app locally'
 };
 
 exports.commands = [
-  require('./commands/ssh.js')('local', 'build'),
-  require('./commands/socks.js')('local', 'run'),
-  require('./commands/port.js')('local', 'export')
+  require('./commands/build.js')('local', 'build'),
+  require('./commands/run.js')('local', 'run'),
+  require('./commands/export.js')('local', 'export')
 ];
