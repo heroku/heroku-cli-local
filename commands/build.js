@@ -18,8 +18,7 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:build`,
-    flags: [
-      { name: 'buildpack', char: 'b', hasValue: true, description: 'the buildpack to use' }],
+    flags: [],
     needsApp: true,
     needsAuth: false,
     run: cli.command(co.wrap(run))
@@ -28,9 +27,9 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    cli.hush(`cf local stage ${context.app}`)
-    let cmdArgs = ['local', 'stage', context.app]
-    let spawned = child.spawn('cf', cmdArgs, {stdio: 'pipe'})
+    cli.log(`Building ${context.app}`)
+    let cmdArgs = ['run', '--rm', '-v', `${process.cwd()}:/workspace`, '-v', `${process.cwd()}/.heroku:/out`, 'packs/heroku-16:build']
+    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
           reject(`There was a problem building the app.`);

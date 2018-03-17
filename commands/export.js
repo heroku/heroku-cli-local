@@ -28,9 +28,10 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    cli.hush(`cf local export ${context.app}`)
-    let cmdArgs = ['local', 'export', context.app, '-r', context.app]
-    let spawned = child.spawn('cf', cmdArgs, {stdio: 'pipe'})
+    let cmdArgs = ['run', '--rm', '-v', `${process.cwd()}/.heroku:/workspace`,
+        '-v', '/var/run/docker.sock:/var/run/docker.sock',
+        'packs/heroku-16:export', context.app]
+    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
           reject(`There was a problem building the app.`);
