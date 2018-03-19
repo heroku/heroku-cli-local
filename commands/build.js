@@ -28,13 +28,24 @@ module.exports = function(topic, command) {
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
     cli.log(`Building ${context.app}`)
-    let cmdArgs = ['run', '--rm', '-v', `${process.cwd()}:/workspace`, '-v', `${process.cwd()}/.heroku:/out`, 'packs/heroku-16:build']
+    let containerName = `heorku-build-${Math.round(Math.random() * (9999 - 1000) + 1000)}`
+    let cmdArgs = ['run', '--name', containerName, '--rm',
+        '-v', `${process.cwd()}:/workspace`,
+        '-v', `${process.cwd()}/.heroku/out:/out`,
+        '-v', `${process.cwd()}/.heroku/cache:/cache`,
+        'packs/heroku-16:build']
     let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
-          reject(`There was a problem building the app.`);
+          reject('There was a problem building the app.');
         } else {
-          resolve();
+          cli.log(`-----> Compressing...`) // not really, but it looks good
+          let cmdArgs = ['cp', `${containerName}:/cache/cache.tgz`, `${process.cwd()}/.heroku/cache/cache.tgz`]
+          let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
+            .on('exit', (code, signal) => {
+              cli.log('       Done')
+              resolve();
+            });
         }
       });
     spawned.stdout.on('data', (chunk) => {

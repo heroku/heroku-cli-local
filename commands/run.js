@@ -27,7 +27,9 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let cmdArgs = ['run', '--rm', '-p', '5000:5000', '-v', `${process.cwd()}/.heroku:/workspace`, 'packs/heroku-16:run']
+    let cmdArgs = ['run', '--rm', '-p', '5000:5000',
+        '-v', `${process.cwd()}/.heroku/out:/workspace`,
+        'packs/heroku-16:run']
     let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
