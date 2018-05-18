@@ -28,7 +28,7 @@ module.exports = function(topic, command) {
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
     cli.log(`Building ${context.app}`)
-    let containerName = `heorku-build-${Math.round(Math.random() * (9999 - 1000) + 1000)}`
+    let containerName = `heroku-build-${Math.round(Math.random() * (9999 - 1000) + 1000)}`
     let cmdArgs = ['run', '--name', containerName, '--rm',
         '-v', `${process.cwd()}:/workspace`,
         '-v', `${process.cwd()}/.heroku/out:/out`,
