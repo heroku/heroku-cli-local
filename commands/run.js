@@ -9,6 +9,7 @@ const tty = require('tty');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const os = require('os')
 
 module.exports = function(topic, command) {
   return {
@@ -27,10 +28,12 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let cmdArgs = ['run', '--rm', '-p', '5000:5000',
-        '-v', `${process.cwd()}/.heroku/out:/workspace`,
-        'packs/heroku-16:run']
-    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
+    let bin = `heroku-local-${os.platform()}`
+    if (!fs.existsSync(bin)) {
+      reject(`Unsupported platform: ${os.platform()}`);
+    }
+    let cmdArgs = ['run', process.cwd()]
+    let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
           reject(`There was a problem running the app.`);

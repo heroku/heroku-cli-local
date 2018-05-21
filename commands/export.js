@@ -9,6 +9,7 @@ const tty = require('tty');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const os = require('os')
 
 module.exports = function(topic, command) {
   return {
