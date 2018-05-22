@@ -34,19 +34,6 @@ function * run(context, heroku) {
     }
     let cmdArgs = ['build', process.cwd(), context.app, '--skip-stack-pull']
     let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
-      .on('exit', (code, signal) => {
-        if (signal || code) {
-          reject('There was a problem building the app.');
-        } else {
-          cli.log(`-----> Compressing...`) // not really, but it looks good
-          let cmdArgs = ['cp', `${containerName}:/cache/cache.tgz`, `${process.cwd()}/.heroku/cache/cache.tgz`]
-          let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
-            .on('exit', (code, signal) => {
-              cli.log('       Done')
-              resolve();
-            });
-        }
-      });
     spawned.stdout.on('data', (chunk) => {
       cli.console.writeLog(chunk.toString());
     });
