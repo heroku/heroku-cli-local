@@ -19,7 +19,9 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:run`,
-    flags: [],
+    flags: [
+      { name: 'skip-stack-pull', char: 's', hasValue: false },
+    ],
     needsApp: true,
     needsAuth: false,
     run: cli.command(co.wrap(run))
@@ -32,7 +34,11 @@ function * run(context, heroku) {
     if (!fs.existsSync(bin)) {
       reject(`Unsupported platform: ${os.platform()}`);
     }
-    let cmdArgs = ['run', context.app, '--skip-stack-pull']
+    let cmdArgs = ['run', context.app]
+    if (context.flags['skip-stack-pull']) {
+      cli.warn('Using local stack image')
+      cmdArgs.push('--skip-stack-pull')
+    }
     let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
