@@ -20,5 +20,9 @@
   "files": [
     "/index.js",
     "/commands"
-  ]
+  ],
+  "scripts": {
+    "postinstall": "bash scripts/postinstall.sh 0.1.0",
+    "prepublishOnly": "bash scripts/prepublish.sh"
+  }
 }
