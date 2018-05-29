@@ -28,11 +28,11 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let bin = `heroku-local-${os.platform()}`
+    let bin = path.join(__dirname, '..', 'bin', `heroku-local-${os.platform()}`)
     if (!fs.existsSync(bin)) {
       reject(`Unsupported platform: ${os.platform()}`);
     }
-    let cmdArgs = ['run', process.cwd()]
+    let cmdArgs = ['run', context.app, '--skip-stack-pull']
     let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {

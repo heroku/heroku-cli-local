@@ -28,7 +28,7 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let bin = path.join(__dirname, `heroku-local-${os.platform()}`)
+    let bin = path.join(__dirname, '..', 'bin', `heroku-local-${os.platform()}`)
     if (!fs.existsSync(bin)) {
       reject(`Unsupported platform: ${os.platform()}`);
     }
