@@ -16,5 +16,9 @@
   "license": "ISC",
   "dependencies": {
     "heroku-cli-util": "^7.0.0"
-  }
+  },
+  "files": [
+    "/index.js",
+    "/commands"
+  ]
 }
