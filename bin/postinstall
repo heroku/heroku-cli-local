@@ -9,7 +9,7 @@ download() {
 
   for ((i=0; i < ${#platforms[@]}; i++)); do
     echo "Downloading bin/heroku-local-${platforms[i]}..."
-    curl --retry 3 -o bin/heroku-local-${platforms[i]} -L \
+    curl --retry 3 -o bin/heroku-local-${platforms[i]} -L --silent \
       https://github.com/heroku/heroku-local-build/releases/download/v${version}/heroku-local-${version}-${extensions[i]}
   done
 }

@@ -22,7 +22,8 @@
     "/commands"
   ],
   "scripts": {
-    "postinstall": "bash scripts/postinstall.sh 0.1.0",
-    "prepublishOnly": "bash scripts/prepublish.sh"
+    "test": "bash bin/test",
+    "postinstall": "bash bin/postinstall 0.1.0",
+    "prepublishOnly": "bash bin/prepublish"
   }
 }
