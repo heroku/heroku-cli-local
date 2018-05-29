@@ -20,7 +20,9 @@ module.exports = function(topic, command) {
 
     $ heroku local:export`,
     flags: [
-      { name: 'tag', char: 't', hasValue: true, description: 'tag of the docker image' }],
+      { name: 'skip-stack-pull', char: 's', hasValue: false },
+      { name: 'tag', char: 't', hasValue: true, description: 'tag of the docker image' }
+    ],
     needsApp: true,
     needsAuth: false,
     run: cli.command(co.wrap(run))
@@ -29,22 +31,33 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let cmdArgs = ['run', '--rm', '-v', `${process.cwd()}/.heroku/out:/workspace`,
-        '-v', '/var/run/docker.sock:/var/run/docker.sock',
-        'packs/heroku-16:export', context.app]
-    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
-      .on('exit', (code, signal) => {
-        if (signal || code) {
-          reject(`There was a problem building the app.`);
-        } else {
-          resolve();
-        }
+    let bin = path.join(__dirname, '..', 'bin', `heroku-local-${os.platform()}`)
+    if (!fs.existsSync(bin)) {
+      reject(`Unsupported platform: ${os.platform()}`);
+    }
+    let cmdArgs = ['export', process.cwd(), context.flags.tag || context.app]
+    if (context.flags['skip-stack-pull']) {
+      cli.warn('Using local stack image')
+      cmdArgs.push('--skip-stack-pull')
+    }
+    let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
+      .on('error', (err) => {
+        cli.log(err)
+        reject(err)
+      })
+      .on('close', (code) => {
+        if (code) reject(code);
+        else resolve();
       });
-    spawned.stdout.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
-    spawned.stderr.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
+    if (spawned.stdout) {
+      spawned.stdout.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
+    if (spawned.stderr) {
+      spawned.stderr.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
   });
 }

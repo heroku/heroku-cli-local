@@ -47,11 +47,15 @@ function * run(context, heroku) {
           resolve();
         }
       });
-    spawned.stdout.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
-    spawned.stderr.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
+    if (spawned.stdout) {
+      spawned.stdout.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
+    if (spawned.stderr) {
+      spawned.stderr.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
   });
 }

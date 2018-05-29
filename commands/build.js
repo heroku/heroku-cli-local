@@ -40,11 +40,23 @@ function * run(context, heroku) {
       cmdArgs.push('--skip-stack-pull')
     }
     let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
-    spawned.stdout.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
-    spawned.stderr.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
+      .on('error', (err) => {
+        cli.log(err)
+        reject(err)
+      })
+      .on('close', (code) => {
+        if (code) reject(code);
+        else resolve();
+      });
+    if (spawned.stdout) {
+      spawned.stdout.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
+    if (spawned.stderr) {
+      spawned.stderr.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
   });
 }
