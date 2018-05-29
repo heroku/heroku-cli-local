@@ -7,7 +7,3 @@ before_install:
 - bash bin/ci
 script: "npm test"
 after_script: heroku keys:remove $USER@`hostname`
-matrix:
-  include:
-  - os: linux
-  - os: osx
