@@ -9,6 +9,7 @@ const tty = require('tty');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const os = require('os')
 
 module.exports = function(topic, command) {
   return {
@@ -18,7 +19,9 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:build`,
-    flags: [],
+    flags: [
+      { name: 'skip-stack-pull', char: 's', hasValue: false },
+    ],
     needsApp: true,
     needsAuth: false,
     run: cli.command(co.wrap(run))
@@ -27,32 +30,33 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    cli.log(`Building ${context.app}`)
-    let containerName = `heorku-build-${Math.round(Math.random() * (9999 - 1000) + 1000)}`
-    let cmdArgs = ['run', '--name', containerName, '--rm',
-        '-v', `${process.cwd()}:/workspace`,
-        '-v', `${process.cwd()}/.heroku/out:/out`,
-        '-v', `${process.cwd()}/.heroku/cache:/cache`,
-        'packs/heroku-16:build']
-    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
-      .on('exit', (code, signal) => {
-        if (signal || code) {
-          reject('There was a problem building the app.');
-        } else {
-          cli.log(`-----> Compressing...`) // not really, but it looks good
-          let cmdArgs = ['cp', `${containerName}:/cache/cache.tgz`, `${process.cwd()}/.heroku/cache/cache.tgz`]
-          let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
-            .on('exit', (code, signal) => {
-              cli.log('       Done')
-              resolve();
-            });
-        }
+    let bin = path.join(__dirname, '..', 'bin', `heroku-local-${os.platform()}`)
+    if (!fs.existsSync(bin)) {
+      reject(`Unsupported platform: ${os.platform()}`);
+    }
+    let cmdArgs = ['build', process.cwd(), context.app]
+    if (context.flags['skip-stack-pull']) {
+      cli.warn('Using local stack image')
+      cmdArgs.push('--skip-stack-pull')
+    }
+    let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
+      .on('error', (err) => {
+        cli.log(err)
+        reject(err)
+      })
+      .on('close', (code) => {
+        if (code) reject(code);
+        else resolve();
       });
-    spawned.stdout.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
-    spawned.stderr.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
+    if (spawned.stdout) {
+      spawned.stdout.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
+    if (spawned.stderr) {
+      spawned.stderr.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
   });
 }

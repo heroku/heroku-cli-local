@@ -9,6 +9,7 @@ const tty = require('tty');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const os = require('os')
 
 module.exports = function(topic, command) {
   return {
@@ -18,7 +19,9 @@ module.exports = function(topic, command) {
     help: `Example:
 
     $ heroku local:run`,
-    flags: [],
+    flags: [
+      { name: 'skip-stack-pull', char: 's', hasValue: false },
+    ],
     needsApp: true,
     needsAuth: false,
     run: cli.command(co.wrap(run))
@@ -27,10 +30,16 @@ module.exports = function(topic, command) {
 
 function * run(context, heroku) {
   return new Promise((resolve, reject) => {
-    let cmdArgs = ['run', '--rm', '-p', '5000:5000',
-        '-v', `${process.cwd()}/.heroku/out:/workspace`,
-        'packs/heroku-16:run']
-    let spawned = child.spawn('docker', cmdArgs, {stdio: 'pipe'})
+    let bin = path.join(__dirname, '..', 'bin', `heroku-local-${os.platform()}`)
+    if (!fs.existsSync(bin)) {
+      reject(`Unsupported platform: ${os.platform()}`);
+    }
+    let cmdArgs = ['run', context.app]
+    if (context.flags['skip-stack-pull']) {
+      cli.warn('Using local stack image')
+      cmdArgs.push('--skip-stack-pull')
+    }
+    let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
       .on('exit', (code, signal) => {
         if (signal || code) {
           reject(`There was a problem running the app.`);
@@ -38,11 +47,15 @@ function * run(context, heroku) {
           resolve();
         }
       });
-    spawned.stdout.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
-    spawned.stderr.on('data', (chunk) => {
-      cli.console.writeLog(chunk.toString());
-    });
+    if (spawned.stdout) {
+      spawned.stdout.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
+    if (spawned.stderr) {
+      spawned.stderr.on('data', (chunk) => {
+        cli.console.writeLog(chunk.toString());
+      });
+    }
   });
 }
