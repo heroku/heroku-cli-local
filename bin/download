@@ -1,0 +1,28 @@
+#!/bin/bash
+
+platforms=(darwin linux win32)
+
+download() {
+  local version="${1:?}"
+  local extensions=(macos linux windows.exe)
+
+  for ((i=0; i < ${#platforms[@]}; i++)); do
+    echo "Downloading bin/heroku-local-${platforms[i]}..."
+    file="bin/heroku-local-${platforms[i]}"
+    curl --retry 3 -o ${file} -L --silent \
+      https://github.com/heroku/heroku-local-build/releases/download/v${version}/heroku-local-${version}-${extensions[i]}
+    chmod +x ${file}
+  done
+}
+
+verify() {
+  for ((i=0; i < ${#platforms[@]}; i++)); do
+    if [ ! -f "bin/heroku-local-${platforms[i]}" ]; then
+      echo " ! ERROR: Missing bin/heroku-local-${platforms[i]}"
+      exit 1
+    fi
+  done
+}
+
+download "$@"
+verify

@@ -23,7 +23,6 @@
   ],
   "scripts": {
     "test": "bash bin/test",
-    "postinstall": "bash bin/postinstall 0.1.2",
-    "prepublishOnly": "bash bin/prepublish"
+    "prepublishOnly": "bash bin/download 0.1.2"
   }
 }
