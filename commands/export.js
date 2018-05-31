@@ -35,10 +35,14 @@ function * run(context, heroku) {
     if (!fs.existsSync(bin)) {
       reject(`Unsupported platform: ${os.platform()}`);
     }
-    let cmdArgs = ['export', process.cwd(), context.flags.tag || context.app]
+    let cmdArgs = ['export', context.app]
     if (context.flags['skip-stack-pull']) {
       cli.warn('Using local stack image')
       cmdArgs.push('--skip-stack-pull')
+    }
+    if (context.flags['tag']) {
+      cmdArgs.push('--tag')
+      cmdArgs.push(context.flags['tag'])
     }
     let spawned = child.spawn(bin, cmdArgs, {stdio: 'pipe'})
       .on('error', (err) => {
@@ -49,15 +53,11 @@ function * run(context, heroku) {
         if (code) reject(code);
         else resolve();
       });
-    if (spawned.stdout) {
-      spawned.stdout.on('data', (chunk) => {
-        cli.console.writeLog(chunk.toString());
-      });
-    }
-    if (spawned.stderr) {
-      spawned.stderr.on('data', (chunk) => {
-        cli.console.writeLog(chunk.toString());
-      });
-    }
+    spawned.stdout.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
+    spawned.stderr.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
   });
 }

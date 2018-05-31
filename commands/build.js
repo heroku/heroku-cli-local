@@ -48,15 +48,11 @@ function * run(context, heroku) {
         if (code) reject(code);
         else resolve();
       });
-    if (spawned.stdout) {
-      spawned.stdout.on('data', (chunk) => {
-        cli.console.writeLog(chunk.toString());
-      });
-    }
-    if (spawned.stderr) {
-      spawned.stderr.on('data', (chunk) => {
-        cli.console.writeLog(chunk.toString());
-      });
-    }
+    spawned.stdout.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
+    spawned.stderr.on('data', (chunk) => {
+      cli.console.writeLog(chunk.toString());
+    });
   });
 }
