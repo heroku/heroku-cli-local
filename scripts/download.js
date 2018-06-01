@@ -31,8 +31,8 @@ async function download(url, file, callback) {
 
 const extension = getExtension();
 const version = process.argv[2];
-const file = `bin/heroku-local-${process.platform}`;
-const url = `https://github.com/heroku/heroku-local-build/releases/download/v${version}/heroku-local-${version}-${extension}`;
+const file = `bin/tatara-${process.platform}`;
+const url = `https://github.com/heroku/tatara/releases/download/v${version}/tatara-${version}-${extension}`;
 
 console.log(`Downloading ${file} from ${url}`)
 download(url, file, () => {
