@@ -59,8 +59,6 @@ set -e
 
 heroku plugins:link .
 
-npm run-script prepublishOnly
-
 app="heroku-local-test-${RANDOM}"
 echo "Preparing test app ${app}..."
 
