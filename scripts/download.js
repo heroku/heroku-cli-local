@@ -14,7 +14,7 @@ function getExtension() {
   }
 }
 
-async function download(url, file) {
+async function download(url, file, callback) {
   const res = await fetch(url);
   await new Promise((resolve, reject) => {
     const fileStream = fs.createWriteStream(file);
@@ -23,6 +23,7 @@ async function download(url, file) {
       reject(err);
     });
     fileStream.on("finish", function() {
+      callback()
       resolve();
     });
   });}
@@ -34,6 +35,6 @@ const file = `bin/heroku-local-${process.platform}`;
 const url = `https://github.com/heroku/heroku-local-build/releases/download/v${version}/heroku-local-${version}-${extension}`;
 
 console.log(`Downloading ${file} from ${url}`)
-download(url, file);
-
-fs.chmodSync(file, 0o777);
+download(url, file, () => {
+  fs.chmodSync(file, 0o765);
+});
