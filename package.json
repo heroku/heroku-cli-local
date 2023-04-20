@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "heroku-cli-util": "^7.0.0",
-    "node-fetch": "^2.1.2"
+    "node-fetch": "^2.6.7"
   },
   "files": [
     "/index.js",
