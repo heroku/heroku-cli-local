@@ -15,7 +15,7 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "heroku-cli-util": "^7.0.0",
+    "heroku-cli-util": "^8.0.12",
     "node-fetch": "^2.1.2"
   },
   "files": [
